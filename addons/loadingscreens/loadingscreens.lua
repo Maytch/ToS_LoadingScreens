@@ -1,12 +1,16 @@
--- Get number of images in loadingscreens folder
+-- Get number of images and array of filenames in loadingscreens folder
 local url = config.GetLoadingImgURL();
 local urlStr = string.format("%s",url);
 urlSubStr = string.sub(urlStr, 1, string.len(urlStr) - 20) .. "\\addons\\loadingscreens\\";
-urlCnt = -1;
+urlCnt = 0;
+fileNames = {};
 local popen = io.popen;
-local pfile = popen('dir "'..urlSubStr..'" /b');
-for filename in pfile:lines() do
-    urlCnt = urlCnt + 1;
+local pfile = popen('dir "' .. urlSubStr .. '" /b');
+for fileName in pfile:lines() do
+	if fileName ~= "loadingscreens.lua" then
+	    urlCnt = urlCnt + 1;
+	    fileNames[urlCnt] = fileName;
+	end
 end
 pfile:close();
 
@@ -26,7 +30,7 @@ function LOADING_SCREENS(addon, frame)
 	pic:Resize(frame:GetWidth(), frame:GetHeight());
 
 	local urlIndex = OSRandom(1, urlCnt);
-	local urlStr = string.format("%s%d.jpg", urlSubStr, urlIndex);
+	local urlStr = string.format("%s%s", urlSubStr, fileNames[urlIndex]);
 	pic:SetUrlInfo(urlStr);
 
 	local tipGroupbox 		= frame:GetChild('tip');
@@ -42,7 +46,7 @@ function LOADING_SCREENS(addon, frame)
 	local clsList, cnt  = GetClassList('LoadingText');
 	local tipClass  = nil;
 
-	for i = 1, cnt*5 do -- ê·¸ëƒ¥ ë¬´í•œë£¨í”„ë¥?ë§‰ê¸° ?„í•¨. ì¡°ê±´??ë§žëŠ” ?ì´ ?˜ì˜¬?Œê¹Œì§€ ê³¨ë¼ë³¸ë‹¤.
+	for i = 1, cnt*5 do
 	
 		tipClass = GetClassByIndexFromList(clsList, OSRandom(0, cnt  - 1));
 		if tipClass.MinLv <= nowlevel and tipClass.MaxLv >= nowlevel then
@@ -71,8 +75,9 @@ function LOADING_SCREENS(addon, frame)
 
 end
 
--- Copy the FPS_ON_MSG function and replace it with ours
+-- Overwrite the BG Loading function with ours
 local eventHook = "LOADINGBG_ON_INIT";
 _G[eventHook] = LOADING_SCREENS;
 
-ui.SysMsg(urlCnt);
+local sysString = string.format("%d Loading Screens loaded!", urlCnt);
+ui.SysMsg(sysString);
