@@ -14,7 +14,6 @@ for fileName in pfile:lines() do
 end
 pfile:close();
 
---_G["BG_COUNT"] = urlCnt;
 function LOADING_SCREENS(addon, frame)
 
 	addon:RegisterMsg('START_LOADING', 'DO_RESIZE_BY_CLIENT_SIZE');
